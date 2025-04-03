@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mo Amin | Ethical Hacker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --dark: #0a0a0a;
+            --darker: #050505;
+            --light: #e0e0e0;
+            --accent: #00ff41; /* Matrix green */
+            --accent-dark: #008f29;
+            --danger: #ff3333;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+        
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Glitch text effect */
+        .glitch {
+            position: relative;
+        }
+        
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .glitch::before {
+            left: 2px;
+            text-shadow: -2px 0 #ff00c1;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+        
+        .glitch::after {
+            left: -2px;
+            text-shadow: -2px 0 #00fff9, 2px 2px #ff00c1;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse;
+        }
+        
+        @keyframes glitch-anim {
+            0% { clip: rect(31px, 9999px, 94px, 0) }
+            10% { clip: rect(112px, 9999px, 76px, 0) }
+            20% { clip: rect(85px, 9999px, 77px, 0) }
+            30% { clip: rect(27px, 9999px, 97px, 0) }
+            40% { clip: rect(64px, 9999px, 98px, 0) }
+            50% { clip: rect(61px, 9999px, 85px, 0) }
+            60% { clip: rect(99px, 9999px, 114px, 0) }
+            70% { clip: rect(34px, 9999px, 115px, 0) }
+            80% { clip: rect(98px, 9999px, 129px, 0) }
+            90% { clip: rect(43px, 9999px, 96px, 0) }
+            100% { clip: rect(82px, 9999px, 64px, 0) }
+        }
+        
+        @keyframes glitch-anim2 {
+            0% { clip: rect(65px, 9999px, 119px, 0) }
+            10% { clip: rect(25px, 9999px, 145px, 0) }
+            20% { clip: rect(129px, 9999px, 102px, 0) }
+            30% { clip: rect(79px, 9999px, 100px, 0) }
+            40% { clip: rect(66px, 9999px, 119px, 0) }
+            50% { clip: rect(86px, 9999px, 85px, 0) }
+            60% { clip: rect(23px, 9999px, 122px, 0) }
+            70% { clip: rect(85px, 9999px, 89px, 0) }
+            80% { clip: rect(12px, 9999px, 149px, 0) }
+            90% { clip: rect(67px, 9999px, 132px, 0) }
+            100% { clip: rect(111px, 9999px, 74px, 0) }
+        }
+        
+        /* Terminal cursor effect */
+        @keyframes blink {
+            0%, 100% { opacity: 1 }
+            50% { opacity: 0 }
+        }
+        
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 1.2rem;
+            background: var(--accent);
+            margin-left: 5px;
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+        }
+        
+        /* Scanlines overlay */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.25) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        /* Header styles */
+        header {
+            background: linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.7)), 
+                        url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, transparent 0%, var(--dark) 100%);
+            opacity: 0.7;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+        }
+        
+        .profile-img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 3px solid var(--accent);
+            margin-bottom: 1rem;
+            object-fit: cover;
+            box-shadow: 0 0 20px var(--accent);
+            filter: grayscale(30%) contrast(120%);
+            transition: all 0.5s ease;
+        }
+        
+        .profile-img:hover {
+            filter: grayscale(0%) contrast(100%);
+            transform: scale(1.05);
+            box-shadow: 0 0 30px var(--accent);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            font-weight: bold;
+        }
+        
+        .typing-text {
+            display: inline-block;
+        }
+        
+        .social-links {
+            margin: 1.5rem 0;
+        }
+        
+        .social-links a {
+            color: var(--light);
+            font-size: 1.5rem;
+            margin: 0 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .social-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            bottom: -5px;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            color: var(--accent);
+            transform: translateY(-3px);
+        }
+        
+        .social-links a:hover::after {
+            width: 100%;
+        }
+        
+        /* Section styles */
+        section {
+            padding: 4rem 0;
+            position: relative;
+        }
+        
+        section::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            top: 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        
+        .section-title h2 {
+            font-size: 2rem;
+            display: inline-block;
+            padding-bottom: 10px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 3px;
+            background-color: var(--accent);
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 10px var(--accent);
+        }
+        
+        /* Skills grid */
+        .skills-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .skill-category {
+            background: rgba(10, 10, 10, 0.7);
+            padding: 1.5rem;
+            border-radius: 5px;
+            border-left: 3px solid var(--accent);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        
+        .skill-category:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 255, 65, 0.1);
+        }
+        
+        .skill-category h3 {
+            margin-bottom: 1rem;
+            color: var(--accent);
+            font-size: 1.3rem;
+        }
+        
+        .skills-list {
+            list-style-type: none;
+        }
+        
+        .skills-list li {
+            margin-bottom: 0.8rem;
+            position: relative;
+            padding-left: 25px;
+            line-height: 1.5;
+        }
+        
+        .skills-list li::before {
+            content: '>';
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+        }
+        
+        /* Projects grid */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .project-card {
+            background: rgba(10, 10, 10, 0.7);
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            border-top: 1px solid rgba(0, 255, 65, 0.3);
+            position: relative;
+            backdrop-filter: blur(5px);
+        }
+        
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 255, 65, 0.1) 0%, transparent 100%);
+            z-index: -1;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 255, 65, 0.2);
+            border-top: 1px solid var(--accent);
+        }
+        
+        .project-img {
+            height: 200px;
+            width: 100%;
+            object-fit: cover;
+            filter: grayscale(30%) contrast(110%);
+            transition: all 0.5s ease;
+        }
+        
+        .project-card:hover .project-img {
+            filter: grayscale(0%) contrast(100%);
+        }
+        
+        .project-info {
+            padding: 1.5rem;
+        }
+        
+        .project-info h3 {
+            margin-bottom: 0.8rem;
+            color: var(--accent);
+        }
+        
+        .project-info p {
+            margin-bottom: 1.2rem;
+            color: #aaa;
+        }
+        
+        .project-links a {
+            display: inline-block;
+            margin-right: 15px;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: bold;
+            position: relative;
+            padding-bottom: 3px;
+        }
+        
+        .project-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            bottom: 0;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+        
+        .project-links a:hover::after {
+            width: 100%;
+        }
+        
+        /* Timeline */
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            background: var(--accent);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -1px;
+            box-shadow: 0 0 10px var(--accent);
+        }
+        
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+        }
+        
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: var(--dark);
+            border: 3px solid var(--accent);
+            border-radius: 50%;
+            top: 15px;
+            z-index: 1;
+            box-shadow: 0 0 10px var(--accent);
+        }
+        
+        .left {
+            left: 0;
+        }
+        
+        .right {
+            left: 50%;
+        }
+        
+        .left::after {
+            right: -10px;
+        }
+        
+        .right::after {
+            left: -10px;
+        }
+        
+        .timeline-content {
+            padding: 20px;
+            background: rgba(10, 10, 10, 0.7);
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border-left: 3px solid var(--accent);
+            backdrop-filter: blur(5px);
+        }
+        
+        .timeline-content h3 {
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+        
+        .timeline-content p {
+            color: #aaa;
+        }
+        
+        /* Contact form */
+        .contact-form {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(10, 10, 10, 0.7);
+            padding: 2rem;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border-top: 1px solid var(--accent);
+            backdrop-filter: blur(5px);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid #333;
+            border-radius: 3px;
+            font-size: 1rem;
+            color: var(--light);
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+        
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: transparent;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.2), transparent);
+            transition: all 0.5s ease;
+        }
+        
+        .btn:hover {
+            background-color: rgba(0, 255, 65, 0.1);
+            box-shadow: 0 0 15px var(--accent);
+            transform: translateY(-2px);
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--darker);
+            color: var(--light);
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+            position: relative;
+        }
+        
+        footer::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            top: 0;
+        }
+        
+        footer p {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-accent {
+            color: var(--accent);
+            font-weight: bold;
+        }
+        
+        /* Binary rain animation */
+        .binary-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+        
+        /* Responsive adjustments */
+        @media screen and (max-width: 768px) {
+            .timeline::after {
+                left: 31px;
+            }
+            
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            
+            .timeline-item::after {
+                left: 21px;
+            }
+            
+            .left::after, .right::after {
+                left: 21px;
+            }
+            
+            .right {
+                left: 0%;
+            }
+            
+            header {
+                padding: 3rem 0;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .tagline {
+                font-size: 1rem;
+            }
+        }
+        
+        /* Hacker effect terminal */
+        #terminal {
+            background: rgba(5, 5, 5, 0.9);
+            border: 1px solid var(--accent);
+            border-radius: 5px;
+            padding: 1rem;
+            margin: 2rem auto;
+            max-width: 800px;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+            font-family: 'Courier New', monospace;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #terminal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                rgba(0, 255, 65, 0.1) 0%, 
+                transparent 50%, 
+                rgba(0, 255, 65, 0.1) 100%
+            );
+            animation: scan 8s linear infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes scan {
+            0% { transform: translateY(-100%) }
+            100% { transform: translateY(100%) }
+        }
+        
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #333;
+        }
+        
+        .terminal-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        
+        .terminal-btn.red {
+            background: #ff5f56;
+        }
+        
+        .terminal-btn.yellow {
+            background: #ffbd2e;
+        }
+        
+        .terminal-btn.green {
+            background: #27c93f;
+        }
+        
+        .terminal-title {
+            margin-left: 10px;
+            color: #aaa;
+            font-size: 0.8rem;
+        }
+        
+        .terminal-body {
+            min-height: 200px;
+        }
+        
+        .command {
+            color: var(--accent);
+        }
+        
+        .command::before {
+            content: '> ';
+        }
+        
+        .output {
+            margin: 0.5rem 0;
+            white-space: pre-wrap;
+            color: #aaa;
+        }
+        
+        /* Interactive command line */
+        #command-line {
+            display: flex;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        
+        #command-input {
+            flex-grow: 1;
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            padding: 0.2rem;
+            caret-color: var(--accent);
+        }
+        
+        #command-input:focus {
+            outline: none;
+        }
+        
+        /* HackTheBox Stats Widget */
+        .htb-widget {
+            background: rgba(5, 5, 5, 0.9);
+            border: 1px solid var(--accent);
+            border-radius: 5px;
+            padding: 1.5rem;
+            margin: 2rem auto;
+            max-width: 800px;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .htb-widget::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                rgba(0, 255, 65, 0.1) 0%, 
+                transparent 50%, 
+                rgba(0, 255, 65, 0.1) 100%
+            );
+            pointer-events: none;
+        }
+        
+        .htb-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+        
+        .htb-header i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .htb-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .stat-box {
+            background: rgba(20, 20, 20, 0.7);
+            padding: 1rem;
+            border-radius: 5px;
+            border-left: 3px solid var(--accent);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 0.3rem;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        /* Password Cracker Demo */
+        .cracker-demo {
+            background: rgba(5, 5, 5, 0.9);
+            border: 1px solid var(--accent);
+            border-radius: 5px;
+            padding: 1.5rem;
+            margin: 2rem auto;
+            max-width: 800px;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+        }
+        
+        .cracker-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+        
+        .cracker-header i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .cracker-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+        
+        .hash-input {
+            flex-grow: 1;
+            background: rgba(20, 20, 20, 0.7);
+            border: 1px solid #333;
+            border-radius: 3px;
+            padding: 0.5rem;
+            color: var(--light);
+            font-family: 'Courier New', monospace;
+        }
+        
+        .cracker-btn {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .cracker-btn:hover {
+            background: rgba(0, 255, 65, 0.1);
+        }
+        
+        .cracker-output {
+            background: rgba(20, 20, 20, 0.7);
+            border: 1px solid #333;
+            border-radius: 3px;
+            padding: 1rem;
+            min-height: 100px;
+            font-family: 'Courier New', monospace;
+            overflow-y: auto;
+            max-height: 200px;
+        }
+        
+        .cracker-output .success {
+            color: var(--accent);
+        }
+        
+        .cracker-output .fail {
+            color: var(--danger);
+        }
+        
+        /* Progress bar */
+        .progress-container {
+            width: 100%;
+            background: rgba(20, 20, 20, 0.7);
+            border-radius: 3px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--darker);
+            color: var(--light);
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            border: 1px solid var(--accent);
+            font-size: 0.8rem;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Binary rain background -->
+    <canvas id="binaryCanvas" class="binary-rain"></canvas>
+    
+    <!-- Scanlines overlay -->
+    <div class="scanlines"></div>
+    
+    <header>
+        <div class="container">
+            <img src="https://via.placeholder.com/150" alt="Mo Amin" class="profile-img">
+            <h1 class="glitch" data-text="Mo Amin">Mo Amin</h1>
+            <p class="tagline">Ethical Hacker | Penetration Tester | Security Researcher</p>
+            <div class="typing-text">
+                <span id="typing"></span>
+                <span class="cursor"></span>
+            </div>
+            <div class="social-links">
+                <a href="https://github.com/Mo1Amin" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="#" target="_blank"><i class="fab fa-linkedin"></i></a>
+                <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://app.hackthebox.com/profile/" target="_blank"><i class="fas fa-cube"></i></a>
+                <a href="https://tryhackme.com/p/" target="_blank"><i class="fas fa-lock"></i></a>
+            </div>
+        </div>
+    </header>
+
+    <section id="about">
+        <div class="container">
+            <div class="section-title">
+                <h2>About_Me</h2>
+            </div>
+            <div id="terminal">
+                <div class="terminal-header">
+                    <div class="terminal-btn red"></div>
+                    <div class="terminal-btn yellow"></div>
+                    <div class="terminal-btn green"></div>
+                    <div class="terminal-title">user@terminal: ~/about_me</div>
+                </div>
+                <div class="terminal-body">
+                    <div class="command">whoami</div>
+                    <div class="output">Mo Amin - Cybersecurity Specialist</div>
+                    
+                    <div class="command">cat bio.txt</div>
+                    <div class="output">
+I'm a passionate cybersecurity professional specializing in penetration testing and vulnerability research. 
+With a strong background in ethical hacking, I help organizations identify and mitigate security risks.
+
+My expertise includes:
+- Web Application Security
+- Network Penetration Testing
+- Vulnerability Assessment
+- Security Tool Development
+                    </div>
+                    
+                    <div class="command">ls skills/</div>
+                    <div class="output">
+burpsuite/  metasploit/  python/  nmap/  wireshark/  linux/  owasp-top10/
+                    </div>
+                    
+                    <div id="command-line">
+                        <span class="command"></span>
+                        <input type="text" id="command-input" placeholder="Type 'help' for commands" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="skills">
+        <div class="container">
+            <div class="section-title">
+                <h2>My_Skills</h2>
+            </div>
+            <div class="skills-container">
+                <div class="skill-category">
+                    <h3>Penetration Testing</h3>
+                    <ul class="skills-list">
+                        <li>Web App Testing (OWASP Top 10)</li>
+                        <li>Network Penetration Testing</li>
+                        <li>Burp Suite Professional</li>
+                        <li>Metasploit Framework</li>
+                        <li>Nmap & Advanced Scanning</li>
+                        <li>Privilege Escalation</li>
+                        <li>Post-Exploitation</li>
+                    </ul>
+                </div>
+                <div class="skill-category">
+                    <h3>Security Tools</h3>
+                    <ul class="skills-list">
+                        <li>Wireshark & Tshark</li>
+                        <li>John the Ripper/Hashcat</li>
+                        <li>SQLmap</li>
+                        <li>Ghidra/IDA Pro</li>
+                        <li>Docker for Security Labs</li>
+                        <li>Kali Linux Tools</li>
+                        <li>Custom Scripting</li>
+                    </ul>
+                </div>
+                <div class="skill-category">
+                    <h3>Development</h3>
+                    <ul class="skills-list">
+                        <li>Python (Security Automation)</li>
+                        <li>Bash Scripting</li>
+                        <li>Web Security (HTML/JS)</li>
+                        <li>Secure Coding Practices</li>
+                        <li>Exploit Development</li>
+                        <li>Tool Development</li>
+                        <li>Git Version Control</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="htb-stats">
+        <div class="container">
+            <div class="section-title">
+                <h2>HackTheBox_Stats</h2>
+            </div>
+            <div class="htb-widget">
+                <div class="htb-header">
+                    <i class="fas fa-cube"></i>
+                    <span>HackTheBox Progress</span>
+                </div>
+                <div class="htb-stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="htb-rank">#4,321</div>
+                        <div class="stat-label">Global Rank</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="htb-machines">27</div>
+                        <div class="stat-label">Machines Owned</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="htb-challenges">15</div>
+                        <div class="stat-label">Challenges Solved</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="htb-respect">850</div>
+                        <div class="stat-label">Respect</div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <a href="https://app.hackthebox.com/profile/" target="_blank" class="btn">View Full Profile</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="projects">
+        <div class="container">
+            <div class="section-title">
+                <h2>Projects_</h2>
+            </div>
+            <div class="projects-grid">
+                <div class="project-card">
+                    <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Vulnerable Web App" class="project-img">
+                    <div class="project-info">
+                        <h3>Vulnerable Web App Lab</h3>
+                        <p>Purposefully insecure web application for practicing security testing techniques including XSS, SQLi, and CSRF attacks.</p>
+                        <div class="project-links">
+                            <a href="https://github.com/Mo1Amin/Vuln-Web-App" target="_blank">View Code</a>
+                            <a href="#" target="_blank">Live Demo</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <img src="https://images.unsplash.com/photo-1563986768609-322da13575f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="CTF Writeups" class="project-img">
+                    <div class="project-info">
+                        <h3>CTF Writeups</h3>
+                        <p>Detailed solutions for HackTheBox, TryHackMe, and other CTF challenges with technical explanations.</p>
+                        <div class="project-links">
+                            <a href="https://github.com/Mo1Amin/CTF-Writeups" target="_blank">View Writeups</a>
+                            <a href="#" target="_blank">HTB Profile</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Security Tools" class="project-img">
+                    <div class="project-info">
+                        <h3>Security Toolkit</h3>
+                        <p>Collection of custom security scripts and tools for penetration testing and automation.</p>
+                        <div class="project-links">
+                            <a href="#" target="_blank">View Tools</a>
+                            <a href="#" target="_blank">Documentation</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="cracker-demo">
+        <div class="container">
+            <div class="section-title">
+                <h2>Password_Cracker_Demo</h2>
+            </div>
+            <div class="cracker-demo">
+                <div class="cracker-header">
+                    <i class="fas fa-key"></i>
+                    <span>MD5 Password Cracker Simulation</span>
+                </div>
+                <div class="cracker-controls">
+                    <input type="text" id="hash-input" class="hash-input" placeholder="Enter MD5 hash or click 'Generate Demo'" value="">
+                    <button id="generate-hash" class="cracker-btn">Generate Demo</button>
+                    <button id="crack-hash" class="cracker-btn">Crack Hash</button>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <div class="cracker-output" id="cracker-output">
+                    <div class="tooltip">
+                        <i class="fas fa-info-circle"></i> Try cracking these sample hashes:
+                        <span class="tooltiptext">
+                            5f4dcc3b5aa765d61d8327deb882cf99 (password)<br>
+                            098f6bcd4621d373cade4e832627b4f6 (test)<br>
+                            e10adc3949ba59abbe56e057f20f883e (123456)
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="experience">
+        <div class="container">
+            <div class="section-title">
+                <h2>Education_&_Certs</h2>
+            </div>
+            <div class="timeline">
+                <div class="timeline-item left">
+                    <div class="timeline-content">
+                        <h3>Bachelor of IT & Computer Science</h3>
+                        <p>Sinai University, Arish</p>
+                        <p>2022 - 2026</p>
+                    </div>
+                </div>
+                <div class="timeline-item right">
+                    <div class="timeline-content">
+                        <h3>eJPT Certification</h3>
+                        <p>eLearnSecurity Junior Penetration Tester</p>
+                        <p>In Progress</p>
+                    </div>
+                </div>
+                <div class="timeline-item left">
+                    <div class="timeline-content">
+                        <h3>Software Testing & QA</h3>
+                        <p>ITI</p>
+                        <p>2024</p>
+                    </div>
+                </div>
+                <div class="timeline-item right">
+                    <div class="timeline-content">
+                        <h3>TryHackMe Top 1%</h3>
+                        <p>Completed 50+ rooms</p>
+                        <p>2024</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact">
+        <div class="container">
+            <div class="section-title">
+                <h2>Contact_Me</h2>
+            </div>
+            <div class="contact-form">
+                <form id="contactForm">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" class="form-control" required></textarea>
+                    </div>
+                    <button type="submit" class="btn">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>© <span class="footer-accent">2024</span> Mohamed Amin. All rights reserved.</p>
+            <p>Designed with <span class="footer-accent"><3</span> for cybersecurity</p>
+        </div>
+    </footer>
+
+    <script>
+        // Binary rain animation
+        const canvas = document.getElementById('binaryCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const binary = '01';
+        const columns = Math.floor(canvas.width / 15);
+        const drops = [];
+        
+        for (let i = 0; i < columns; i++) {
+            drops[i] = Math.floor(Math.random() * canvas.height);
+        }
+        
+        function drawBinaryRain() {
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#00ff41';
+            ctx.font = '15px monospace';
+            
+            for (let i = 0; i < drops.length; i++) {
+                const text = binary.charAt(Math.floor(Math.random() * binary.length));
+                ctx.fillText(text, i * 15, drops[i] * 15);
+                
+                if (drops[i] * 15 > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                
+                drops[i]++;
+            }
+        }
+        
+        setInterval(drawBinaryRain, 33);
+        
+        // Typing effect
+        const phrases = [
+            'Penetration Tester',
+            'Ethical Hacker',
+            'Security Researcher',
+            'Bug Hunter',
+            'CTF Player'
+        ];
+        
+        let phraseIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        let isEnd = false;
+        
+        function type() {
+            const currentPhrase = phrases[phraseIndex];
+            const displayElement = document.getElementById('typing');
+            
+            if (isDeleting) {
+                displayElement.textContent = currentPhrase.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                displayElement.textContent = currentPhrase.substring(0, charIndex + 1);
+                charIndex++;
+            }
+            
+            if (!isDeleting && charIndex === currentPhrase.length) {
+                isEnd = true;
+                isDeleting = true;
+                setTimeout(type, 1500);
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                setTimeout(type, 500);
+            } else {
+                const speed = isDeleting ? 50 : 100;
+                setTimeout(type, speed);
+            }
+        }
+        
+        // Terminal commands
+        const commands = {
+            help: 'Available commands: help, clear, whoami, bio, skills, contact',
+            clear: function() {
+                document.querySelector('.terminal-body').innerHTML = `
+                    <div class="terminal-header">
+                        <div class="terminal-btn red"></div>
+                        <div class="terminal-btn yellow"></div>
+                        <div class="terminal-btn green"></div>
+                        <div class="terminal-title">user@terminal: ~</div>
+                    </div>
+                    <div id="command-line">
+                        <span class="command"></span>
+                        <input type="text" id="command-input" placeholder="Type 'help' for commands" autocomplete="off">
+                    </div>
+                `;
+                setupCommandInput();
+            },
+            whoami: 'Mo Amin - Cybersecurity Specialist',
+            bio: 'Passionate security researcher with expertise in penetration testing and vulnerability assessment.',
+            skills: 'Penetration Testing | Web Security | Network Security | Python | Ethical Hacking',
+            contact: 'Email: mohmedamin1998@gmail.com | GitHub: github.com/Mo1Amin'
+        };
+        
+        function setupCommandInput() {
+            const commandInput = document.getElementById('command-input');
+            
+            commandInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    const command = this.value.trim().toLowerCase();
+                    this.value = '';
+                    
+                    const terminalBody = document.querySelector('.terminal-body');
+                    const lastCommandLine = document.getElementById('command-line');
+                    
+                    if (command === '') return;
+                    
+                    // Create command element
+                    const commandElement = document.createElement('div');
+                    commandElement.className = 'command';
+                    commandElement.textContent = command;
+                    
+                    // Create output element
+                    const outputElement = document.createElement('div');
+                    outputElement.className = 'output';
+                    
+                    if (commands[command]) {
+                        if (typeof commands[command] === 'function') {
+                            commands[command]();
+                            return;
+                        } else {
+                            outputElement.textContent = commands[command];
+                        }
+                    } else {
+                        outputElement.textContent = `Command not found: ${command}. Type 'help' for available commands.`;
+                    }
+                    
+                    // Insert before the command line
+                    terminalBody.insertBefore(commandElement, lastCommandLine);
+                    terminalBody.insertBefore(outputElement, lastCommandLine);
+                    
+                    // Scroll to bottom
+                    terminalBody.scrollTop = terminalBody.scrollHeight;
+                }
+            });
+            
+            commandInput.focus();
+        }
+        
+        // Password Cracker Demo
+        const commonPasswords = [
+            'password', '123456', '12345678', '1234', 'qwerty', 
+            '12345', 'dragon', 'baseball', 'football', 'letmein',
+            'monkey', 'shadow', 'master', 'hello', 'freedom'
+        ];
+        
+        const demoHashes = {
+            '5f4dcc3b5aa765d61d8327deb882cf99': 'password',
+            '098f6bcd4621d373cade4e832627b4f6': 'test',
+            'e10adc3949ba59abbe56e057f20f883e': '123456',
+            '482c811da5d5b4bc6d497ffa98491e38': 'password123',
+            '25d55ad283aa400af464c76d713c07ad': '12345678'
+        };
+        
+        document.getElementById('generate-hash').addEventListener('click', function() {
+            const hashes = Object.keys(demoHashes);
+            const randomHash = hashes[Math.floor(Math.random() * hashes.length)];
+            document.getElementById('hash-input').value = randomHash;
+        });
+        
+        document.getElementById('crack-hash').addEventListener('click', function() {
+            const hashInput = document.getElementById('hash-input').value.trim();
+            const outputElement = document.getElementById('cracker-output');
+            const progressBar = document.getElementById('progress-bar');
+            
+            if (!hashInput) {
+                outputElement.innerHTML = '<div class="fail">Please enter a hash or generate a demo hash first.</div>';
+                return;
+            }
+            
+            // Clear previous output
+            outputElement.innerHTML = '';
+            
+            // Check if it's one of our demo hashes
+            if (demoHashes[hashInput]) {
+                simulateCracking(hashInput, demoHashes[hashInput], outputElement, progressBar);
+                return;
+            }
+            
+            // Simulate cracking for other hashes
+            let found = false;
+            for (const password of commonPasswords) {
+                if (md5(password) === hashInput) {
+                    simulateCracking(hashInput, password, outputElement, progressBar);
+                    found = true;
+                    break;
+                }
+            }
+            
+            if (!found) {
+                simulateFailedCrack(hashInput, outputElement, progressBar);
+            }
+        });
+        
+        function simulateCracking(hash, password, outputElement, progressBar) {
+            outputElement.innerHTML += `<div>> Starting brute-force attack on MD5 hash: ${hash}</div>`;
+            
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress > 100) progress = 100;
+                progressBar.style.width = `${progress}%`;
+                
+                if (progress < 30) {
+                    outputElement.innerHTML += `<div>> Trying common passwords... (${Math.floor(progress)}%)</div>`;
+                } else if (progress < 70) {
+                    outputElement.innerHTML += `<div>> Trying dictionary words... (${Math.floor(progress)}%)</div>`;
+                } else if (progress < 100) {
+                    outputElement.innerHTML += `<div>> Trying combinations... (${Math.floor(progress)}%)</div>`;
+                } else {
+                    clearInterval(interval);
+                    outputElement.innerHTML += `<div class="success">> Success! Cracked hash: ${hash} => ${password}</div>`;
+                    progressBar.style.backgroundColor = '#00ff41';
+                }
+                
+                outputElement.scrollTop = outputElement.scrollHeight;
+            }, 200);
+        }
+        
+        function simulateFailedCrack(hash, outputElement, progressBar) {
+            outputElement.innerHTML += `<div>> Starting brute-force attack on MD5 hash: ${hash}</div>`;
+            
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress > 100) progress = 100;
+                progressBar.style.width = `${progress}%`;
+                
+                if (progress < 30) {
+                    outputElement.innerHTML += `<div>> Trying common passwords... (${Math.floor(progress)}%)</div>`;
+                } else if (progress < 70) {
+                    outputElement.innerHTML += `<div>> Trying dictionary words... (${Math.floor(progress)}%)</div>`;
+                } else if (progress < 100) {
+                    outputElement.innerHTML += `<div>> Trying combinations... (${Math.floor(progress)}%)</div>`;
+                } else {
+                    clearInterval(interval);
+                    outputElement.innerHTML += `<div class="fail">> Failed to crack hash: ${hash}</div>`;
+                    outputElement.innerHTML += `<div>> Try a weaker password or use a larger wordlist</div>`;
+                    progressBar.style.backgroundColor = '#ff3333';
+                }
+                
+                outputElement.scrollTop = outputElement.scrollHeight;
+            }, 200);
+        }
+        
+        // Simple MD5 function (for demo purposes only)
+        function md5(input) {
+            // This is a simplified version for demonstration
+            // In a real application, use a proper MD5 library
+            return CryptoJS.MD5(input).toString();
+        }
+        
+        // HackTheBox Stats Simulation
+        function simulateHTBStats() {
+            // These would normally come from an API
+            // For demo, we'll animate them
+            animateValue('htb-rank', 0, 4321, 2000);
+            animateValue('htb-machines', 0, 27, 1500);
+            animateValue('htb-challenges', 0, 15, 1200);
+            animateValue('htb-respect', 0, 850, 1800);
+        }
+        
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                let value;
+                if (typeof end === 'number') {
+                    value = Math.floor(progress * (end - start) + start);
+                    if (id === 'htb-rank') {
+                        obj.innerHTML = `#${value.toLocaleString()}`;
+                    } else {
+                        obj.innerHTML = value;
+                    }
+                }
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+        
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            type();
+            setupCommandInput();
+            simulateHTBStats();
+            
+            // Form submission
+            document.getElementById('contactForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('Message received! I will get back to you soon.');
+                this.reset();
+            });
+            
+            // Smooth scrolling for navigation
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+        
+        // Responsive adjustments
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+    
+    <!-- Include CryptoJS for MD5 hashing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</body>
+</html>
